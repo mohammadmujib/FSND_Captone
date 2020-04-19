@@ -4,10 +4,11 @@ import os
 db = SQLAlchemy()
 
 def setup_db(app):
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://postgres:1234@localhost:5432/agency'
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
+
 
 class Movie(db.Model):
     # this is the movie table in my database .
