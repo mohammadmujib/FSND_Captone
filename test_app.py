@@ -10,7 +10,6 @@ import datetime
 
 
 class CastingTestCase(unittest.TestCase):
-
     def setUp(self):
         '''define test variables and initialize app'''
 
@@ -21,7 +20,7 @@ class CastingTestCase(unittest.TestCase):
 
         self.new_movie = {
             'title': 'New Movie',
-            'release_date' : datetime.date(2019, 3, 13),
+            'release_date': datetime.date(2019, 3, 13),
         }
 
         self.new_actor = {
@@ -36,7 +35,7 @@ class CastingTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
-    
+
     def tearDown(self):
         pass
 
@@ -69,54 +68,47 @@ class CastingTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(data['new_actor']['name'], 'John Doe')
-    
+
     def test_delete_movie(self):
         res = self.client().delete('/movies/delete/1')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-    
+
     def test_delete_movie_fail(self):
         res = self.client().delete('/movies/delete/1000')
         self.assertEqual(res.status_code, 404)
-    
+
     def test_delete_actor(self):
         res = self.client().delete('/actors/delete/1')
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-    
+
     def test_delete_actor_fail(self):
         res = self.client().delete('/actors/delete/1000')
         self.assertEqual(res.status_code, 404)
-    
+
     def test_patch_movie(self):
         res = self.client().patch('/movies/patch/2', json=self.new_movie)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-    
+
     def test_patch_movie_fail(self):
         res = self.client().patch('/movies/patch/2000', json=self.new_movie)
         self.assertEqual(res.status_code, 404)
 
-    
     def test_patch_actor(self):
         res = self.client().patch('/actors/patch/2', json=self.new_actor)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-    
+
     def test_patch_actor_fail(self):
         res = self.client().patch('/actors/patch/2000', json=self.new_actor)
         self.assertEqual(res.status_code, 404)
-    
-
-
-
-
 
 
 if __name__ == "__main__":
     unittest.main()
-
