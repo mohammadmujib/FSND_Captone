@@ -8,7 +8,7 @@ from sqlalchemy import Column, String, Integer, Date, ForeignKey
 
 Base = declarative_base()
 
-# postgres://localhost:5432/casting
+DATABASE_URL = 'postgres://postgres:1234@localhost:5432/castings'
 
 database_path = os.environ['DATABASE_URL']
 

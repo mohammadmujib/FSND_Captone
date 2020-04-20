@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
-from sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from models import setup_db
 from casting.casting import casting
 from errorhandler.errorhandler import error
