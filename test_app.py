@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-database_path = 'postgresql://postgres:1234@localhost:5432/castings_test'
+test_database_path = 'postgresql://postgres:1234@localhost:5432/castings_test'
 
 bearer_tokens = {
     "casting_assistant": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpR3IwQW5XV3k2Y2tNZWM5Qlk1diJ9.eyJpc3MiOiJodHRwczovL2NhcHN0b25lLWNhc3RpbmcuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVlOWNhY2NmZGU0MzFhMGM4ZDY3MGNkMiIsImF1ZCI6ImNhc3RpbmciLCJpYXQiOjE1ODc1MDk3MzQsImV4cCI6MTU4NzUxNjkzNCwiYXpwIjoiMVdPVHhjTDlCSTJNWTdiRjNwb1A4YmZUV2g2bzRabk4iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIl19.kGIXN_koE9fJcDxfNmBkmXO5LgKka2FRbJ-z2adTfK5p_LIoIF5Rd6sFsVNXnoVGHNywmXk51pGj0eewSBpfe7pAAK9F5eZhktUd2KT8nhppkeJ06wohOlnndGuqnSGOOXXyGlU5aVcae1oN7CyxMFH1RUHVmEjDm7QtC3tqOWO_Fh2kUWPwI62rR8N7hWepUhI_RIqwaUOJH2kzzX90Rlg06jhhtAGC9rtgbNgkvXu6UpNZ1Tk9KuHXQwxMIlQeOQRKDI6So7kfONGTNpDKAf6AV9q7y-_WHyvCKyG1VIVNILSfpesYhiK36FWMhTfvsimHVl0IwjyCST-IVjbD1A",
@@ -55,7 +55,7 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         
-        setup_db(self.app, database_path=database_path)
+        setup_db(self.app, database_path=test_database_path)
         with self.app.app_context():
             self.db = db
 
