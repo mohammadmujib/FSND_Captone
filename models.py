@@ -11,8 +11,8 @@ Base = declarative_base()
 
 DEBUG = True
 SECRET_KEY = os.urandom(32)
-# database_path = 'postgres://postgres:1234@localhost:5432/castings'
-database_path = os.environ['DATABASE_URL']
+database_path = 'postgres://postgres:1234@localhost:5432/agency4'
+#database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
 
