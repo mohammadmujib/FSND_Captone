@@ -28,11 +28,11 @@ def create_movie(payload):
     body = request.get_json()
 
     new_title = body.get('title', None)
-    new_release_date = body.get('release_date', None)
+    year = body.get('year', None)
 
     try:
         movie = Movie(title=new_title,
-                      release_date=new_release_date
+                      year=new_year
                       )
         movie.insert()
         movies = Movie.query.order_by(Movie.id).all()
@@ -59,7 +59,7 @@ def edit_movie(payload, movie_id):
 
     try:
         movie.title = body.get('title', None)
-        movie.release_date = body.get('release_date', None)
+        movie.year = body.get('year', None)
         movie.update()
         movies = Movie.query.order_by(Movie.id).all()
         formatted_movies = [movie.format() for movie in movies]
@@ -190,9 +190,9 @@ def add_dummy_data():
     actor2 = Actor(name="Angelina Jolie", gender='f', age=22)
     actor3 = Actor(name="Nick Jonas", gender='f', age=32)
 
-    movie1 = Movie(title="Titanic", release_date='01/01/2018')
-    movie2 = Movie(title="Avenger", release_date='01/01/2019')
-    movie3 = Movie(title="Amazing Spider man", release_date='01/01/2020')
+    movie1 = Movie(title="Titanic", year=2018)
+    movie2 = Movie(title="Avenger", year=2019)
+    movie3 = Movie(title="Amazing Spider man", year=2020)
 
     actor1.insert()
     actor2.insert()
