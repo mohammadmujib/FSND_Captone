@@ -3,13 +3,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 import os
-from sqlalchemy import Column, String, Integer, Date, ForeignKey
+from sqlalchemy import Column, String, Integer, Date
 
 
 Base = declarative_base()
 
-DATABASE_URL = 'postgres://postgres:1234@localhost:5432/castings'
 
+DEBUG = True
+SECRET_KEY = os.urandom(32)
+# database_path = 'postgres://postgres:1234@localhost:5432/castings'
 database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
@@ -21,6 +23,8 @@ setup_db(app)
 
 
 def setup_db(app, database_path=database_path):
+    app.config['DEBUG'] = DEBUG
+    app.config['SECRET_KEY'] = SECRET_KEY
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
@@ -28,12 +32,9 @@ def setup_db(app, database_path=database_path):
     db.create_all()
 
 
-class MovieActorAssociation(db.Model):
-    __table_name__ = "movie_actor_association"
-
-    id = db.Column(Integer, primary_key=True)
-    movie_id = Column(Integer, ForeignKey('movie.id'))
-    actor_id = Column(Integer, ForeignKey('actor.id'))
+def db_drop_and_create_all():
+    db.drop_all()
+    db.create_all()
 
 
 class Movie(db.Model):
@@ -42,10 +43,7 @@ class Movie(db.Model):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     release_date = Column(Date)
-    actors = relationship("Actor",
-                          secondary="movie_actor_association",
-                          backref="movies")
-
+   
     def __init__(self, title, release_date):
         self.title = title
         self.release_date = release_date
@@ -65,8 +63,7 @@ class Movie(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'release_date': self.release_date,
-            'actors': [actor.id for actor in self.actors]
+            'release_date': self.release_date
         }
 
 
