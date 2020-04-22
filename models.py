@@ -11,8 +11,8 @@ Base = declarative_base()
 
 DEBUG = True
 SECRET_KEY = os.urandom(32)
-database_path = 'postgres://postgres:1234@localhost:5432/agency4'
-#database_path = os.environ['DATABASE_URL']
+# database_path = 'postgres://postgres:1234@localhost:5432/agency4'
+database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
 
@@ -37,48 +37,28 @@ def db_drop_and_create_all():
     db.create_all()
 
 
-class Movie(db.Model):
-    __tablename__ = 'movie'
 
-    id = Column(Integer, primary_key=True)
-    title = Column(String)
-    release_date = Column(Date)
-
-    def __init__(self, title, release_date):
-        self.title = title
-        self.release_date = release_date
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def format(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'release_date': self.release_date
-        }
+cast = db.Table(
+    'cast',
+    db.Column('actor_id', db.Integer,
+              db.ForeignKey('actors.id'), primary_key=True),
+    db.Column('movie_id', db.Integer,
+              db.ForeignKey('movies.id'), primary_key=True),
+)
 
 
 class Actor(db.Model):
-    __tablename__ = 'actor'
+    __tablename__ = 'actors'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    gender = Column(String)
-    age = Column(Integer)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String)
+    age = db.Column(db.Integer)
+    gender = db.Column(db.String)
 
-    def __init__(self, name, gender, age):
+    def __init__(self, name, age, gender):
         self.name = name
-        self.gender = gender
         self.age = age
+        self.gender = gender
 
     def insert(self):
         db.session.add(self)
@@ -96,5 +76,38 @@ class Actor(db.Model):
             'id': self.id,
             'name': self.name,
             'age': self.age,
-            'gender': self.gender
+            'gender': self.gender,
+        }
+
+
+
+class Movie(db.Model):
+    __tablename__ = 'movies'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    title = db.Column(db.String)
+    year = db.Column(db.Integer)
+    actors = db.relationship('Actor', secondary=cast,
+                             backref=db.backref('movies', lazy=True))
+
+    def __init__(self, title, year):
+        self.title = title
+        self.year = year
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'year': self.year
         }
