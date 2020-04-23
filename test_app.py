@@ -3,15 +3,20 @@ import unittest
 import json
 import random
 from flask_sqlalchemy import SQLAlchemy
-
 from app import create_app
 from models import setup_db, Actor, Movie, helper_table
+from dotenv import load_dotenv
 
 
-TEST_DATABASE_URI = 'postgresql://postgres:1234@localhost:5432/casting_agency'
-CASTING_ASSISTANT = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpR3IwQW5XV3k2Y2tNZWM5Qlk1diJ9.eyJpc3MiOiJodHRwczovL2NhcHN0b25lLWNhc3RpbmcuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVlOWNhY2NmZGU0MzFhMGM4ZDY3MGNkMiIsImF1ZCI6ImNhc3RpbmciLCJpYXQiOjE1ODc2MzUyMzcsImV4cCI6MTU4NzY0MjQzNywiYXpwIjoiMVdPVHhjTDlCSTJNWTdiRjNwb1A4YmZUV2g2bzRabk4iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbInZpZXc6YWN0b3JzIiwidmlldzptb3ZpZXMiXX0.uMc8zP3BOlOACrEdc4QOjyap3cksbfMvoBpcuRo1D4lejbKh9JQ4dcuTLyVKyGE0ZwLd6Je_xNKQMRDmJWpvxpxTT0rtccYY4aclxVp2xRZZVCPi0_LfFlgtcfURJI2SLqpqgIaYzxK6YyMYF154ZSpBw4qY1yMPGUCCOV1uX7BZxvoNYITAOe6C9_e9RiNiH39razypwHuLWzWgkSEr_IYSdyZnlL-g6HaAKaqOrVke8paPS1-VxIMW6fzjOzFzdXQfdbCsZcwu47oAQ_Fks96Da4mtG5yl95KmvduzDg9ialFfh7v1c4_c5H9KwwOZbKnXLv7m844GC_PLSrq14w'
-CASTING_DIRECTOR = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpR3IwQW5XV3k2Y2tNZWM5Qlk1diJ9.eyJpc3MiOiJodHRwczovL2NhcHN0b25lLWNhc3RpbmcuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVlOWNhY2ZlZGU0MzFhMGM4ZDY3MGQyYiIsImF1ZCI6ImNhc3RpbmciLCJpYXQiOjE1ODc2MzU0NDIsImV4cCI6MTU4NzY0MjY0MiwiYXpwIjoiMVdPVHhjTDlCSTJNWTdiRjNwb1A4YmZUV2g2bzRabk4iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImFkZDphY3RvcnMiLCJkZWxldGU6YWN0b3JzIiwiZWRpdDphY3RvcnMiLCJlZGl0Om1vdmllcyIsInBhdGNoOmFjdG9ycyIsInBhdGNoOm1vdmllcyIsInZpZXc6YWN0b3JzIiwidmlldzptb3ZpZXMiXX0.sqoKnHAJ9nN8YS415O3MKl0KgfYRfxz_CvaPsm0TsRDisBfqTjWfiIxWIbdWaL0yvKkbvGq3EwEOVKCllbj-ppQ46kU4-cBELddDJMTrDRkDb_Q6zQUYo8U4RtKLgNSPksvzyIpiXtyBDY_O2oTZ_w0WcYyB8RvU1cLIEoRab4HTxAuaeG2Un2V4GIhLvbXeYztg4ifPjNHQghtlXpWJr_d1KohmjJXCmmf-5WDQzomLZVtE0ZtuXNtiU318wf-M08zDYLgBy4OErGQz-04Mi322ZngffPDaxILyUyCVZo809XRJbGAqX56Ze-DRDkWuP4RiFNHR11YDseAyCKqPEA'
-EXECUTIVE_PRODUCER = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpR3IwQW5XV3k2Y2tNZWM5Qlk1diJ9.eyJpc3MiOiJodHRwczovL2NhcHN0b25lLWNhc3RpbmcuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVlOWNhZDRhNjNmODAwMGM4YzIzNmJkZCIsImF1ZCI6ImNhc3RpbmciLCJpYXQiOjE1ODc2MzU1MjEsImV4cCI6MTU4NzY0MjcyMSwiYXpwIjoiMVdPVHhjTDlCSTJNWTdiRjNwb1A4YmZUV2g2bzRabk4iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImFkZDphY3RvcnMiLCJhZGQ6bW92aWVzIiwiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTptb3ZpZXMiLCJlZGl0OmFjdG9ycyIsImVkaXQ6bW92aWVzIiwicGF0Y2g6YWN0b3JzIiwicGF0Y2g6bW92aWVzIiwidmlldzphY3RvcnMiLCJ2aWV3Om1vdmllcyJdfQ.NcK6w6xpdjCIvfQ-8ladVaZI7oYjFpvv8jADOivpmmYxLsSP4uCPA3Ue_uxTrY2_39wHNmYTTGTHnBlK5Yd52C15nXQ1DnmBDxnyoEfG-GqN0I3kNnG5OwxSMpD2WQrwro5_OTeWGdj6jTleO37ZiHRSDrI2IvdtoIs3xklZKnrt_1zso3AsqCy1n00K99oAsVF-h0JSCJ5j3ds_XU9Qy0p5ImKE8jbPdnm-XhlyV98Mlwd6caV8qQHFthtJJVRRqM0hObdF0ila7lANXLRCrMnvLO4ZAf6mJsRZrkh9dm-H6Vn9hNWIkc0S050_GR7BD6nnD953Be2D5euTPP3khw'
+load_dotenv()
+
+
+TEST_DATABASE_URI = os.environ['TEST_DATABASE_URI']
+CASTING_ASSISTANT = os.environ['CASTING_ASSISTANT']
+CASTING_DIRECTOR = os.environ['CASTING_DIRECTOR']
+EXECUTIVE_PRODUCER = os.environ['EXECUTIVE_PRODUCER']
+
+
 class CastingAgencyTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -227,12 +232,13 @@ class CastingAgencyTestCase(unittest.TestCase):
         self.assertEqual(data['status_message'], 'OK')
 
         def test_delete_movies_by_casting_assistant_without_auth_401(self):
-            random_id = random.choice([movie.id for movie in Movie.query.all()])
+            random_id = random.choice(
+                [movie.id for movie in Movie.query.all()])
             response = self.client().delete('movies/{}'.format(random_id),
                                             headers={
                                                 "Authorization": "Bearer {}"
                                                 .format(self.casting_assistant)
-                                            }
+            }
             )
             data = json.loads(response.data)
 
@@ -245,13 +251,14 @@ class CastingAgencyTestCase(unittest.TestCase):
                                         headers={
                                             "Authorization": "Bearer {}"
                                             .format(self.executive_producer)
-                                        }
+        }
         )
         data = json.loads(response.data)
 
         self.assertEqual(data['success'], True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['status_message'], 'OK')
+
 
 if __name__ == '__main__':
     unittest.TestLoader.sortTestMethodsUsing = None

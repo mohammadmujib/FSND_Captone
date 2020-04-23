@@ -10,8 +10,7 @@ from models import db, setup_db, Actor, Movie, helper_table
 
 
 def create_app(test_config=None):
-    # Create and configure app
-    # os.environ("SQLALCHEMY_DATABASE_URI") = "postgresql://postgres:puru2000@localhost/casting_agency"
+
     app = Flask(__name__)
     CORS(app)
     setup_db(app)
@@ -39,8 +38,8 @@ def create_app(test_config=None):
     @requires_auth('view:actors')
     def get_actors():
         try:
-            actors = [actor.info() 
-                    for actor in Actor.query.order_by(Actor.id).all()]
+            actors = [actor.info()
+                      for actor in Actor.query.order_by(Actor.id).all()]
 
             return jsonify({
                 'success': True,
@@ -51,7 +50,6 @@ def create_app(test_config=None):
         except Exception as e:
             print(e)
             abort(422)
-
 
     @app.route('/actors', methods=['POST'])
     @requires_auth('add:actors')
@@ -88,7 +86,6 @@ def create_app(test_config=None):
         if target_actor is None:
             abort(404)
 
-
         if seen_in_movies:
             target_actor.movies = []
             target_actor.update()
@@ -96,9 +93,12 @@ def create_app(test_config=None):
             for movie in seen_in_movies:
                 target_actor.movies.append(Movie.query.get(movie))
 
-        if name: target_actor.name = name
-        if age: target_actor.age = age
-        if gender: target_actor.gender = gender
+        if name:
+            target_actor.name = name
+        if age:
+            target_actor.age = age
+        if gender:
+            target_actor.gender = gender
         target_actor.update()
 
         return jsonify({
@@ -120,7 +120,7 @@ def create_app(test_config=None):
                         "status_code": 200,
                         "status_message": 'OK',
                         "id_deleted": actor_id})
-        
+
     # Movie Routes
 
     @app.route('/movies', methods=["GET"])
@@ -128,7 +128,7 @@ def create_app(test_config=None):
     def get_movies():
         try:
             movies = [movie.info()
-                    for movie in Movie.query.order_by(Movie.id).all()]
+                      for movie in Movie.query.order_by(Movie.id).all()]
             return jsonify({
                 "success": True,
                 "status_code": 200,
@@ -149,7 +149,7 @@ def create_app(test_config=None):
             abort(422)
 
         new_movie = Movie(title=title, release_date=release_date)
-            
+
         for i in actors:
             new_movie.actors.append(Actor.query.get(i))
 
@@ -180,8 +180,10 @@ def create_app(test_config=None):
             for person in cast:
                 target_movie.actors.append(Actor.query.get(person))
 
-        if title: target_movie.title = title
-        if release_date: target_movie.release_date = release_date
+        if title:
+            target_movie.title = title
+        if release_date:
+            target_movie.release_date = release_date
         target_movie.update()
 
         return jsonify({

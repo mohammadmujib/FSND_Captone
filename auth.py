@@ -4,11 +4,19 @@ from urllib.request import urlopen
 from flask import request, _request_ctx_stack
 from functools import wraps
 from jose import jwt
+from dotenv import load_dotenv
 
 
-AUTH0_DOMAIN = 'capstone-casting.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'casting'
+load_dotenv()
+
+AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+ALGORITHMS = os.environ['ALGORITHMS']
+API_AUDIENCE = os.environ['API_AUDIENCE']
+
+# AUTH0_DOMAIN = 'capstone-casting.auth0.com'
+# ALGORITHMS = ['RS256']
+# API_AUDIENCE = 'casting'
+
 
 class AuthError(Exception):
 
@@ -21,9 +29,8 @@ class AuthError(Exception):
 
 
 def get_token_auth_header():
-    
     auth = request.headers.get('Authorization', None)
-    # if token is missing raise error 
+    # if token is missing raise error
     if auth is None:
         raise AuthError({
             'code': 'no_auth_header',
@@ -48,13 +55,12 @@ def get_token_auth_header():
 
 
 def check_permissions(permission, payload):
-    
+
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
             'description': 'JWT don\'t have this permissions'
         }, 400)
-    
     if permission not in payload['permissions']:
         raise AuthError({
             'code': 'access_forbidden',
@@ -64,7 +70,7 @@ def check_permissions(permission, payload):
 
 
 def verify_decode_jwt(token):
-    
+
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
     unverified_header = jwt.get_unverified_header(token)
