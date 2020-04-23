@@ -1,93 +1,96 @@
-# FSND Capstone Project
+# Full Stack Casting Agency API Backend
 
-**APPLICATION ROOTS**: 
+## Casting Agency Specifications
 
-- Production App Root:
+The Casting Agency models a company that is responsible for creating movies and managing and assigning actors to those movies. You are an Executive Producer within the company and are creating a system to simplify and streamline your process. 
 
-```txt
-https://castingfsnd.herokuapp.com/
-```
+## Motivation for project
 
-- Local Development App Root:
-
-```shell
-http://127.0.0.1:5000/
-```
-
-
+This is the capstone project of Udacity fullstack nanodegree program, which demonstrate the skillset of
+using Flask, SQLAlchemy, Auth0, gunicorn and heroku to develop and deploy a RESTful API. 
 
 ## Getting Started
 
----
+### Installing Dependencies
 
-### Installing Dependencies:
+#### Python 3.7
 
-**Python 3.7**
+Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 
-Follow instructions to install the version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
+#### Virtual Enviornment
 
-**Virtual Environment**
+We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organaized. Instructions for setting up a virual enviornment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 
-It is recommended to utilize a virtual environment to run this project locally. This will allow us to ensure that your project can wrap it's particular set of dependencies to the project scope, and ensures you're not polluting the global python installation on your local machine. Complete instructions for setting up a proper virtual environment can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
+#### Setting up the database
 
-> **Virtual Environment Quick Start**
->
-> ```shell
-> python -m venv venv
-> ```
->
-> ```shell
-> source venv/bin/activate
-> ```
->
+To run the tests on the api, you must add atleast 3 movies and 3 actors in the database.
 
+#### PIP Dependencies
 
+Once you have your virtual environment setup and running, install dependencies by running:
 
-**Install Dependencies**
-
-```shell
-pip install -r requirements.txt
+```bash
+pip3 install -r requirements.txt
 ```
 
-- This will install all of the required packages we defined in `requirements.txt`.
+This will install all of the required packages we selected within the `requirements.txt` file.
 
+##### Key Dependencies
 
+- [Flask](http://flask.pocoo.org/)  is a lightweight backend microservices framework. Flask is required to handle requests and responses.
 
-### Setup Primary Database
+- [SQLAlchemy](https://www.sqlalchemy.org/) is the Python SQL toolkit and ORM we'll use handle the lightweight sqlite database. You'll primarily work in app.py and can reference models.py. 
 
-```shell
-createdb casting
+- [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server. 
+
+- [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
+
+## Running the server
+
+From within the file directory first ensure you are working using your created virtual environment.
+
+To run the server, execute:
+
+```bash
+python app.py
 ```
 
-- Setup environment variable for primary local database path:
+Setting the `FLASK_ENV` variable to `development` will detect file changes and restart the server automatically.
 
-```shell
-export DATABASE_URL=<URI_TO_DATABASE> 
-```
+## Tasks
 
-> **NOTE**: For easy operation, you can reset and seed the local database by [clicking here](http://127.0.0.1:5000/api/seed) or navigating to:
->
-> http://127.0.0.1:5000/seed
->
-> This will generate the initial data needed for the application, and will reset the database if data has already been seeded. 
->
-> **NOTE**: you do not need to be authenticated to trigger this endpoint
+### Setup Auth0
 
-
-
-### Setup Testing Database
-
-```shell
-createdb casting_test
-```
-
-- Setup environment variable for local test database path:
-
-```shell
-export TEST_DATABASE_URL=<URI_TO_DATABASE> 
-```
-
-> Any tests being run will get executed by default against this secondary database. 
+1. Create a new Auth0 Account
+2. Select a unique tenant domain
+3. Create a new, single page web application
+4. Create a new API
+    - in API Settings:
+        - Enable RBAC
+        - Enable Add Permissions in the Access Token
+5. Create new API permissions:
+    - `add:actors`
+    - `add:movies`
+    - `delete:actors`
+    - `delete:movies`
+    - `edit:actors`
+    - `edit:movies`
+    - `view:actors`
+    - `view:movies`
+6. Create new roles for:
+    - Casting Assistant
+        - Can view actors and movies`
+    - Casting Director
+        - All permissions a Casting Assistant has and ...
+        - Add or delete an actor from the database 
+        - Modify actors or movies
+    - Executive Producer
+        - All permissions a Casting Director has and ...
+        - Add or delete a movie from the database
+7. Test your endpoints with [Postman](https://getpostman.com). 
+    - Register 3 users - assign the Casting Assistant role to one    and Casting Director role to another, and Executive Producer   to the other.
+    - Sign into each account and make note of the JWT.
+    - Test each endpoint and correct any errors.
 
 ## Demo Page  
 
@@ -99,7 +102,7 @@ https://capstone-casting.auth0.com/authorize?audience=casting&response_type=toke
 
 ```
 - Casting Assistant
-    - UserName: assistant@test.com
+    - UserName: assistant@gmail.com
     - Password: Root1234
 - Casting Director
     - UserName: director@gmail.com
@@ -109,341 +112,186 @@ https://capstone-casting.auth0.com/authorize?audience=casting&response_type=toke
     - Password: Root1234 
 ```
 
+## Endpoints documentation
+
+#### `GET '/movies'`
+- Fetches a dictionary of movies
+- Required URL Arguments: None
+- Required Data Arguments: None
+- Returns: Returns Json data about movies 
+- Success Response:
+```
+{
+    "movies": [
+        {
+            "id": 1,
+            "release_date": "Sun, 01 Jan 2012 00:00:00 GMT",
+            "title": "Lion King",
+            "cast": ["Edward", "Jeff"]
+        },
+        {
+            "id": 2,
+            "release_date": "Mon, 12 Aug 2019 00:00:00 GMT",
+            "title": "Joker",
+            "cast": ["Jeff", "David"]
+        }
+    ],
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
+
+#### `GET '/actors'`
+- Fetches a dictionary of actors
+- Required Data Arguments: None
+- Returns: Json data about actors
+- Success Response:
+```
+  {
+    "actors": [
+        {
+            "age": 36,
+            "gender": "male",
+            "id": 1,
+            "name": "Edward",
+            "movies": ["Lion King"]
+        },
+        {
+            "age": 25,
+            "gender": "other",
+            "id": 2,
+            "name": "David",
+            "movies": ["Joker"]
+        },
+        {
+            "age": 35,
+            "gender": "female",
+            "id": 3,
+            "name": "Jeff",
+            "movies": ["Lion King", "Joker"]
+        }
+    ],
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
+
+#### `DELETE '/movies/<int:movie_id>'`
+- Deletes the `movie_id` of movie
+- Required URL Arguments: `movie_id: movie_id_integer` 
+- Required Data Arguments: None
+- Returns: Json data about the deleted movie's ID 
+- Success Response:
+```
+{
+    "id_deleted": 5,
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
+
+#### `DELETE '/actors/<int:actor_id>'`
+- Deletes the `actor_id` of actor
+- Required URL Arguments: `actor_id: actor_id_integer` 
+- Required Data Arguments: None
+- Returns: Json data about the deleted actor's ID 
+- Success Response:
+```
+{
+    "id_deleted": 4,
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
 
 
-**Running Tests**
+#### `POST '/movies'`
+- Post a new movie in a database.
+- Required URL Arguments: None 
+- Required Data Arguments:  Json data                
+- Success Response:
+```
+{
+    "movie": {
+        "id": 6,
+        "release_date": "Thu, 01 Aug 2002 00:00:00 GMT",
+        "title": "Toy Story",
+        "actors": [1, 2]
+    },
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
 
-> Run tests against local testing database:
->
-> ```shell
-> python test_api.py
-> ```
->
-> **NOTE**: `TEST_DATABASE_URL` must be set locally. See[ `Setup Local Testing Database`](#setup-testing-database)
->
-> 
+#### `POST '/actors'`
+- Post a new actor in a database.
+- Required URL Arguments: None 
+- Required Data Arguments:  Json data   
 
-### All Available Endpoints:
-
-| Endpoint:            | Available Methods: | Details:                                                     |
-| -------------------- | ------------------ | ------------------------------------------------------------ |
-| `/`                  | `GET`              | returns the application index route                          |
-| `/seed`              | `GET`              | used to seed/re-seed the database with default records       |
-| `/actors`            | [`GET, POST`]      | used to `GET` a `list` of all `actors` and `POST` new `actors` |
-| `/movies`            | [`GET, POST`]      | used to `GET` a `list` of all `movies` and `POST` new `movies` |
-| `/actors/<actor_id>` | [PATCH, DELETE`]   | used to `GET` a single `actor` by `actor_id`, or `PATCH`  a single `actor` by `actor_id` or `DELETE` a single `actor` by `actor_id` |
-| `/movies/<movie_id>` | [PATCH, DELETE`]   | used to `GET` a single `movie` by `movie_id`, or `PATCH`  a single `movie` by `movie_id` or `DELETE` a single `movie` by `movie_id` |
-
-
-
-### Permissions By Role:
-
-| Permissions     | Roles                                                       |
-| --------------- | ----------------------------------------------------------- |
-| `get:actors`    | [`executive_producer, casting_director, casting_assistant`] |
-| `get:movies`    | [`executive_producer, casting_director, casting_assistant`] |
-| `post:actors`   | [`executive_producer, casting_director`]                    |
-| `post:movies`   | [`executive_producer`]                                      |
-| `patch:actors`  | [`executive_producer, casting_director`]                    |
-| `patch:movies`  | [`executive_producer, casting_director`]                    |
-| `delete:actors` | [`executive_producer, casting_director`]                    |
-| `delete:movies` | [`executive_producer`]                                      |
-
-
-
-## Endpoint Usage
-
-**`GET /actors`**
-
-> - Fetch a list of `actors`
-> - Args: `none`
-> - Returns: `JSON` containing all info related to each actor
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "actors": [
->     {
->       "age": 25,
->       "gender": "m",
->       "id": 1,
->       "name": "Robert De Niro"
->     },
->     {
->       "age": 22,
->       "gender": "f",
->       "id": 2,
->       "name": "Angelina Jolie"
->     },
->     {
->       "age": 32,
->       "gender": "f",
->       "id": 3,
->       "name": "Nick Jonas"
->     }
->   ],
->   "success": true
-> }
-> ```
+- Success Response:
+```
+{
+    "actor": {
+        "age": 18,
+        "gender": "other",
+        "id": 4,
+        "name": "Penny",
+        "movies": [2, 3]
+    },
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
 
 
+#### `PATCH '/movies/<int:movie_id>'`
+- Updates the `movie_id` of movie
+- Required URL Arguments: `movie_id: movie_id_integer` 
+- Required Data Arguments: None
+- Returns: Json data about the updated movie 
+- Success Response:
+```
+{
+    "movie": {
+        "id": 5,
+        "release_date": "Wed, 05 Dec 2018 00:00:00 GMT",
+        "title": "Avenger"
+    },
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
 
-**`GET /movies`**
+#### `PATCH '/actors/<int:actor_id>'`
+- Updates the `actor_id` of actor
+- Required URL Arguments: `actor_id: actor_id_integer` 
+- Required Data Arguments: None
+- Returns: Json data about the deleted actor's ID 
+- Success Response:
+```
+{
+    "actor": {
+        "age": 28,
+        "gender": "other",
+        "id": 4,
+        "name": "Penny"
+    },
+    "status_code": 200,
+    "status_message": "OK",
+    "success": true
+}
+```
 
-> - Fetch a list of `movies`
-> - Args: `none`
-> - Returns: `JSON` containing all info related to each movie
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "movies": [
->     {
->       "id": 1,
->       "release_date": "Mon, 01 Jan 2018 00:00:00 GMT",
->       "title": "Titanic"
->     },
->     {
->       "id": 2,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger"
->     },
->     {
->       "id": 3,
->       "release_date": "Wed, 01 Jan 2020 00:00:00 GMT",
->       "title": "Amazing Spider man"
->     }
->   ],
->   "success": true
-> }
-> ```
-
-
-
-**`POST /actors`**
-
-> - Insert new actor record into database
-> - Args: `name, age, gender`
-> - Returns: `JSON`new actor details
->
-> **EXAMPLE RESPONSE**
->
-> ```json
-> {
->   "actors": [
->     {
->       "age": 25,
->       "gender": "m",
->       "id": 1,
->       "name": "Robert De Niro"
->     },
->     {
->       "age": 22,
->       "gender": "f",
->       "id": 2,
->       "name": "Angelina Jolie"
->     },
->     {
->       "age": 32,
->       "gender": "f",
->       "id": 3,
->       "name": "Nick Jonas"
->     },
->     {
->       "age": 25,
->       "gender": "m",
->       "id": 4,
->       "name": "crisso"
->     }
->   ],
->   "success": true
-> }
-> ```
-
-
-
-
-
-**`POST /movies`**
-
-> - Insert new movie record into database
-> - Args: `title, year`
-> - Returns: `JSON`new movie details
->
-> **EXAMPLE RESPONSE**
->
-> ```json
-> {
->   "movies": [
->     {
->       "id": 1,
->       "release_date": "Mon, 01 Jan 2018 00:00:00 GMT",
->       "title": "Titanic"
->     },
->     {
->       "id": 2,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger"
->     },
->     {
->       "id": 3,
->       "release_date": "Wed, 01 Jan 2020 00:00:00 GMT",
->       "title": "Amazing Spider man"
->     },
->     {
->       "id": 4,
->       "release_date": "Fri, 01 Mar 2019 00:00:00 GMT",
->       "title": "Avenger"
->     }
->   ],
->    "success": true
-> }
-> ```
-
-
-
-**`PATCH /actors/<int:actor_id>`**
-
-> - Fetch a single `actor` by `actor_id`
-> - Args: `actor_id`
-> - Returns: `JSON` updated actor details
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "actors": [
->      {
->       "age": 25,
->       "gender": "m",
->       "id": 1,
->       "name": "Sam Jones"
->     },
->     {
->       "age": 32,
->       "gender": "f",
->       "id": 2,
->       "name": "Samantha Adams"
->     },
->     {
->       "age": 32,
->       "gender": "f",
->       "id": 3,
->       "name": "Vanna White"
->     },
-> 	{
->       "age": 24,
->       "gender": "m",
->       "id": 4,
->       "name": "Tim Adams"
->   	}
->   ],
->   "success": true
-> }
-> ```
->
-> 
-
-
-
-**`PATCH /movies/<int:movie_id>`**
-
-> - Fetch a single `movie` by `movie_id`
-> - Args: `movie_id`
-> - Returns: `JSON`  updated movie details
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "movies": [
->     {
->       "id": 1,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger End Game"
->     },
->     {
->       "id": 2,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger"
->     },
->     {
->       "id": 3,
->       "release_date": "Wed, 01 Jan 2020 00:00:00 GMT",
->       "title": "Amazing Spider man"
->     },
->     {
->       "id": 4,
->       "release_date": "Fri, 01 Mar 2019 00:00:00 GMT",
->       "title": "Avenger"
->     }
->   ],
->   "success": true
-> }
-> ```
-
-
-
-**`DELETE /actors/<int:actor_id>`**
-
-> - Delete a single `actor` by `actor_id`
-> - Args: `actor_id`
-> - Returns: `JSON` updated actor details
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "actors": [
->      {
->       "age": 25,
->       "gender": "m",
->       "id": 1,
->       "name": "Sam Jones"
->     },
->     {
->       "age": 32,
->       "gender": "f",
->       "id": 2,
->       "name": "Samantha Adams"
->     }
->   ],
->   "success": true
-> }
-> ```
-
-
-
-**`DELETE /movies/<int:movie_id>`**
-
-> - Delete a single `movie` by `movie_id`
-> - Args: `movie_id`
-> - Returns: `JSON` updated movie details
->
-> **EXAMPLE RESPONSE:**
->
-> ```json
-> {
->   "movies": [
->     {
->       "id": 1,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger End Game"
->     },
->     {
->       "id": 2,
->       "release_date": "Tue, 01 Jan 2019 00:00:00 GMT",
->       "title": "Avenger"
->     },
->     {
->       "id": 3,
->       "release_date": "Wed, 01 Jan 2020 00:00:00 GMT",
->       "title": "Amazing Spider man"
->     }
->   ],
->   "success": true
-> }
-> ```
-
+## Testing
+For testing, required jwts are included for each role.
+To run the tests, run
+```
+python test_app.py
+```
