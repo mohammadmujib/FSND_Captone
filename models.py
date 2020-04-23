@@ -1,16 +1,18 @@
-import os
-from flask_sqlalchemy import SQLAlchemy
-import dateutil.parser
-from flask_migrate import Migrate
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+from sqlalchemy.ext.declarative import declarative_base
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
+import os
+from sqlalchemy import Column, String, Integer, Date
+
+
+Base = declarative_base()
+
 
 DEBUG = True
 SECRET_KEY = os.urandom(32)
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-database_path = os.getenv('DATABASE_URL')
-
-print('current_db:', database_path)
+# database_path = 'postgres://postgres:1234@localhost:5432/castings'
+database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
 
@@ -20,45 +22,63 @@ setup_db(app)
 '''
 
 
+def setup_db(app, database_path=database_path):
+    app.config['DEBUG'] = DEBUG
+    app.config['SECRET_KEY'] = SECRET_KEY
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.app = app
+    db.init_app(app)
+    db.create_all()
+
+
 def db_drop_and_create_all():
-    """helper function used to drop current and create a fresh database"""
     db.drop_all()
     db.create_all()
 
 
-def setup_db(app, database_path=database_path):
-    """Configures primary application database"""
-    app.config['DEBUG'] = DEBUG
-    app.config['SECRET_KEY'] = SECRET_KEY
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_path
-    print('using db: ', app.config['SQLALCHEMY_DATABASE_URI'])
-    db.app = app
-    db.init_app(app)
+class Movie(db.Model):
+    __tablename__ = 'movie'
 
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    release_date = Column(Date)
+   
+    def __init__(self, title, release_date):
+        self.title = title
+        self.release_date = release_date
 
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
 
-cast = db.Table(
-    'cast',
-    db.Column('actor_id', db.Integer,
-              db.ForeignKey('actors.id'), primary_key=True),
-    db.Column('movie_id', db.Integer,
-              db.ForeignKey('movies.id'), primary_key=True),
-)
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'release_date': self.release_date
+        }
 
 
 class Actor(db.Model):
-    __tablename__ = 'actors'
+    __tablename__ = 'actor'
 
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    name = db.Column(db.String)
-    age = db.Column(db.Integer)
-    gender = db.Column(db.String)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    gender = Column(String)
+    age = Column(Integer)
 
-    def __init__(self, name, age, gender):
+    def __init__(self, name, gender, age):
         self.name = name
-        self.age = age
         self.gender = gender
+        self.age = age
 
     def insert(self):
         db.session.add(self)
@@ -76,43 +96,5 @@ class Actor(db.Model):
             'id': self.id,
             'name': self.name,
             'age': self.age,
-            'gender': self.gender,
+            'gender': self.gender
         }
-
-    def __repr__(self):
-        return f'<Actor id: "{self.id}", name: "{self.name}", age: "{self.age}", gender: "{self.gender}">'
-
-
-class Movie(db.Model):
-    __tablename__ = 'movies'
-
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    title = db.Column(db.String)
-    year = db.Column(db.Integer)
-    actors = db.relationship('Actor', secondary=cast,
-                             backref=db.backref('movies', lazy=True))
-
-    def __init__(self, title, year):
-        self.title = title
-        self.year = year
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def format(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'year': self.year
-        }
-
-    def __repr__(self):
-        return f'<Movie id: "{self.id}", title: "{self.title}", year: "{self.year}">'
