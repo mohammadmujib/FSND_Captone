@@ -36,9 +36,9 @@ class CastingAgencyTestCase(unittest.TestCase):
         actor2 = Actor(name="rock", age=22, gender='f')
         actor3 = Actor(name="Salman", age=32, gender='f')
 
-        movie1 = Movie(title="Joker", year=2018)
-        movie2 = Movie(title="Titanic", year=2019)
-        movie3 = Movie(title="abcd", year=2020)
+        movie1 = Movie(title="Joker", release_date="02/01/2000")
+        movie2 = Movie(title="Titanic", release_date="05/07/2015")
+        movie3 = Movie(title="abcd", release_date="09/11/2029")
 
         self.db.session.add(actor1)
         self.db.session.add(actor2)
@@ -198,7 +198,7 @@ class CastingAgencyTestCase(unittest.TestCase):
 
         json_create_movie = {
             'title': 'Crisso Movie',
-            'year': 2020
+            'release_date': "02/07/2020"
         }
 
         res = self.client().post('/movies', json=json_create_movie,
@@ -213,7 +213,7 @@ class CastingAgencyTestCase(unittest.TestCase):
         """Test Error POST new movie."""
 
         json_create_movie_without_name = {
-            'year': 2020
+            'release_date': "02/07/2020"
         }
 
         res = self.client().post('/movies')
@@ -271,7 +271,7 @@ class CastingAgencyTestCase(unittest.TestCase):
     def test_error_404_edit_movie(self):
         """Test PATCH with non valid id"""
         json_edit_movie = {
-            'year': 2001
+            'release_date': "02/03/2020"
         }
         res = self.client().patch('/movies/123412', json=json_edit_movie,
                                   headers=executive_producer_auth_header)

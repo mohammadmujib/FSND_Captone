@@ -1,18 +1,16 @@
-
-from sqlalchemy.ext.declarative import declarative_base
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship
 import os
-from sqlalchemy import Column, String, Integer, Date
+from flask_sqlalchemy import SQLAlchemy
+import dateutil.parser
+from flask_migrate import Migrate
 
-
-Base = declarative_base()
-
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = True
 SECRET_KEY = os.urandom(32)
-#database_path = 'postgres://postgres:1234@localhost:5432/agency'
-database_path = os.environ['DATABASE_URL']
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+database_path = os.getenv('DATABASE_URL')
+
+print('current_db:', database_path)
 
 db = SQLAlchemy()
 
@@ -22,19 +20,21 @@ setup_db(app)
 '''
 
 
-def setup_db(app, database_path=database_path):
-    app.config['DEBUG'] = DEBUG
-    app.config['SECRET_KEY'] = SECRET_KEY
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.app = app
-    db.init_app(app)
-    db.create_all()
-
-
 def db_drop_and_create_all():
+    """helper function used to drop current and create a fresh database"""
     db.drop_all()
     db.create_all()
+
+
+def setup_db(app, database_path=database_path):
+    """Configures primary application database"""
+    app.config['DEBUG'] = DEBUG
+    app.config['SECRET_KEY'] = SECRET_KEY
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_path
+    print('using db: ', app.config['SQLALCHEMY_DATABASE_URI'])
+    db.app = app
+    db.init_app(app)
 
 
 
@@ -79,6 +79,8 @@ class Actor(db.Model):
             'gender': self.gender,
         }
 
+    def __repr__(self):
+        return f'<Actor id: "{self.id}", name: "{self.name}", age: "{self.age}", gender: "{self.gender}">'
 
 
 class Movie(db.Model):
@@ -111,3 +113,6 @@ class Movie(db.Model):
             'title': self.title,
             'year': self.year
         }
+
+    def __repr__(self):
+        return f'<Movie id: "{self.id}", title: "{self.title}", year: "{self.year}">'
