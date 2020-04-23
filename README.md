@@ -297,7 +297,7 @@ https://capstone-casting.auth0.com/authorize?audience=casting&response_type=toke
 >       "release_date": "Fri, 01 Mar 2019 00:00:00 GMT",
 >       "title": "Avenger"
 >     }
->   ],
+>   
 >   "success": true
 > }
 > ```
