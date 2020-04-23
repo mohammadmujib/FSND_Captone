@@ -94,7 +94,7 @@ Setting the `FLASK_ENV` variable to `development` will detect file changes and r
 
 ## Demo Page  
 
-https://casting-agency001.herokuapp.com
+https://castingfsnd.herokuapp.com
 
 Test each endpoint with the link above ,and different role's Jwts. 
 JWTs for different role can be accessed by login to the link with username and password provided as follows.
