@@ -274,7 +274,7 @@ https://capstone-casting.auth0.com/authorize?audience=casting&response_type=toke
 - Required URL Arguments: `actor_id: actor_id_integer` 
 - Required Data Arguments: None
 - Returns: Json data about the deleted actor's ID 
-- Success Response:
+- Success Response::
 ```
 {
     "actor": {
